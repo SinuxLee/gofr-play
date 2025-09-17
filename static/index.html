@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Demo</title>
+</head>
+<body>
+  <h1>WebSocket Example</h1>
+  <button onclick="sendMessage()">Send Message</button>
+  <pre id="output"></pre>
+
+  <script>
+    // Create a WebSocket connection with specified subprotocols and permessage-deflate enabled
+    const socket = new WebSocket('ws://localhost:8086/ws', ['chat', 'binary', 'permessage-deflate']);
+    const output = document.getElementById('output');
+
+    socket.binaryType = 'arraybuffer';
+
+    socket.onopen = function() {
+      output.textContent += 'Connected to the server\n';
+    };
+
+    socket.onmessage = function(event) {
+      if(event.data == '') return
+
+      const message = new TextDecoder().decode(new Uint8Array(event.data));
+      output.textContent += `Received: ${message}\n`;
+    };
+
+    socket.onclose = function() {
+      output.textContent += 'Disconnected from the server\n';
+    };
+
+    socket.onerror = function(error) {
+      output.textContent += `Error: ${error.message}\n`;
+    };
+
+    function sendMessage() {
+      socket.send(new TextEncoder().encode(JSON.stringify({
+        name: 'libz',
+        age: 18,
+      })));
+    }
+  </script>
+</body>
+</html>
